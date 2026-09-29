@@ -7,9 +7,9 @@ def write_file(file_path,record):
     with open(file_path, "a") as file:
         file.write(str(record))       
 
-def parse_customer_record(lines):
+def parse_accounts_record(lines):
     total_records = len(lines)
-    Valid_Records = 0
+    valid_records = 0
     print("INFO - Pipeline started\n")
     for line in lines:
         fields = line.strip("\n").strip().split("|")
@@ -19,42 +19,33 @@ def parse_customer_record(lines):
                 print("Error : Invalid record")
 
         else:
-            customers = {
+            accounts = {
                 "account_id": fields[0],
                 "customer_id": fields[1],
                 "account_type": fields[2],
                 "status": fields[3]
             }
             
-            if not customers["account_id"]:
-                write_file("data/rejected/accounts_rejected.txt",line)
-                print("INFO - Invalid record: account_id id missing")
+            if (accounts["account_id"] 
+                and accounts["customer_id"] 
+                and accounts["account_type"]
+                and accounts["status"]):
+                print(f"INFO - Valid record: {accounts['account_id']}")
+                valid_records = valid_records + 1
 
-            if not customers["customer_id"]:
-                            write_file("data/rejected/accounts_rejected.txt",line)
-                            print("INFO - Invalid record: customer_id id missing")
-
-            if not customers["account_type"]:
+            else:
                 write_file("data/rejected/accounts_rejected.txt",line)
-                print("INFO - Invalid record: customer name missing")
-        
-            if not customers["status"]:
-                write_file("data/rejected/accounts_rejected.txt",line)
-                print("INFO - Invalid record: customer state missing")
-
-            if fields[0] and fields[1] and fields[2] and fields[3] != "":
-                print(f"INFO - Valid record: {customers["account_id"]}")
-                Valid_Records = Valid_Records + 1
+                print("INFO - Invalid record: account_data id missing")
 
     print(f"\nINFO - Records processed: {total_records}")
-    print(f"INFO - Valid Records: {Valid_Records}")
-    print(f"INFO - Invalid Records: {total_records - Valid_Records}")
+    print(f"INFO - Valid Records: {valid_records}")
+    print(f"INFO - Invalid Records: {total_records - valid_records}")
     return("\nINFO - Pipeline completed")
 
 
 if __name__ == "__main__":
     line = read_file("data/raw/cust_accounts_test.txt")
-    pipeline_status = parse_customer_record(line)
+    pipeline_status = parse_accounts_record(line)
     print(pipeline_status)
 
 
